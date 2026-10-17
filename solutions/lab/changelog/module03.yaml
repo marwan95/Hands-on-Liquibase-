@@ -1,0 +1,83 @@
+databaseChangeLog:
+  - changeSet:
+      id: m3-1
+      author: student
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: supplier_id
+                  type: INT
+
+  - changeSet:
+      id: m3-2
+      author: student
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: fk_products_supplier
+            baseTableName: products
+            baseColumnNames: supplier_id
+            referencedTableName: suppliers
+            referencedColumnNames: supplier_id
+
+  - changeSet:
+      id: m3-3
+      author: student
+      changes:
+        - loadData:
+            tableName: suppliers
+            file: data/suppliers.csv
+            relativeToChangelogFile: true
+            columns:
+              - column: { name: is_active, type: BOOLEAN }
+      rollback:
+        - delete:
+            tableName: suppliers
+
+  - changeSet:
+      id: m3-4
+      author: student
+      changes:
+        - loadData:
+            tableName: products
+            file: data/products.csv
+            relativeToChangelogFile: true
+            columns:
+              - column: { name: price, type: NUMERIC }
+              - column: { name: supplier_id, type: NUMERIC }
+      rollback:
+        - delete:
+            tableName: products
+
+  - changeSet:
+      id: m3-5
+      author: student
+      changes:
+        - createIndex:
+            indexName: idx_orders_order_date
+            tableName: orders
+            columns:
+              - column:
+                  name: order_date
+
+  - changeSet:
+      id: m3-6
+      author: student
+      changes:
+        - createView:
+            viewName: v_product_catalog
+            replaceIfExists: true
+            selectQuery: >
+              SELECT p.product_id, p.name, p.price, s.supplier_name, s.country
+              FROM products p
+              LEFT JOIN suppliers s ON s.supplier_id = p.supplier_id
+
+  - changeSet:
+      id: m3-7
+      author: student
+      changes:
+        - createSequence:
+            sequenceName: seq_invoice_no
+            startValue: 1000
+            incrementBy: 1

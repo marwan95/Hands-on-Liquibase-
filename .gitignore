@@ -1,0 +1,18 @@
+# Local environment overrides
+.env
+
+# Oracle driver installed with "lpm add oracle-ojdbc11" (local Liquibase install)
+lab/liquibase_libs/
+liquibase_libs/
+lab/liquibase.json
+
+# Generated files
+lab/oracle-preview.sql
+*.snapshot.json
+__pycache__/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

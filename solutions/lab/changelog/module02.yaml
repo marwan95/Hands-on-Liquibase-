@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: m2-1
+      author: student
+      comment: Suppliers table written with change types - portable, automatic rollback
+      changes:
+        - createTable:
+            tableName: suppliers
+            columns:
+              - column:
+                  name: supplier_id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: supplier_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: country
+                  type: VARCHAR(50)
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true

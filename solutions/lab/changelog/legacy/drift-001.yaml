@@ -1,0 +1,23 @@
+databaseChangeLog:
+- changeSet:
+    id: 1792247097971-1
+    author: USER (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: customer_key
+        indexName: ix_fact_sales_customer
+        tableName: fact_sales
+        using: btree
+- changeSet:
+    id: 1792247097971-2
+    author: USER (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: discount
+            type: numeric(5, 2)
+        tableName: fact_sales
+

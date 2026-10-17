@@ -1,0 +1,13 @@
+# SPOILERS - correct quiz letters. Used by grading/tools/build_answer_key.py to produce grading/answer_key.json
+module-00: {q1: C, q2: A, q3: D, q4: B, q5: C}
+module-01: {q1: B, q2: C, q3: B, q4: A, q5: D}
+module-02: {q1: C, q2: A, q3: D, q4: B, q5: C}
+module-03: {q1: D, q2: A, q3: C, q4: B, q5: D}
+module-04: {q1: A, q2: C, q3: B, q4: D, q5: B}
+module-05: {q1: C, q2: B, q3: A, q4: D, q5: B}
+module-06: {q1: D, q2: A, q3: B, q4: C, q5: A}
+module-07: {q1: B, q2: C, q3: A, q4: D, q5: B}
+module-08: {q1: C, q2: A, q3: D, q4: B, q5: C}
+module-09: {q1: D, q2: A, q3: B, q4: C, q5: B}
+module-10: {q1: D, q2: A, q3: C, q4: B, q5: D}
+module-exam: {q1: D, q2: A, q3: B, q4: C, q5: D, q6: A, q7: B, q8: C, q9: D, q10: A}

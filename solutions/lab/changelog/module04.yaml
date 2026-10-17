@@ -1,0 +1,30 @@
+databaseChangeLog:
+  # automatic rollback: Liquibase knows the inverse of addColumn
+  - changeSet:
+      id: m4-1
+      author: student
+      changes:
+        - addColumn:
+            tableName: customers
+            columns:
+              - column:
+                  name: loyalty_points
+                  type: INT
+                  defaultValueNumeric: 0
+
+  # dropColumn has NO automatic rollback - you must write it (and the data is still lost)
+  - changeSet:
+      id: m4-2
+      author: student
+      changes:
+        - dropColumn:
+            tableName: suppliers
+            columnName: is_active
+      rollback:
+        - addColumn:
+            tableName: suppliers
+            columns:
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true

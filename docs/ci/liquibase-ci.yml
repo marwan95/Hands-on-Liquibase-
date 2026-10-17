@@ -1,0 +1,64 @@
+# TEMPLATE for Module 10 - a CI pipeline for a Liquibase project on GitHub Actions.
+# To use it in YOUR project: copy it to .github/workflows/liquibase-ci.yml and adjust the paths.
+#
+# On every pull request: validate the changelog, build a throwaway PostgreSQL from scratch,
+# and prove every changeset can deploy AND roll back.
+name: liquibase-ci
+
+on:
+  pull_request:
+    paths: ["changelog/**"]
+  schedule:
+    - cron: "0 2 * * *"        # nightly (02:00 UTC) - add the Module 09 drift check against prod here
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: liquibase_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-retries 10
+
+    env:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://localhost:5432/liquibase_ci
+      LIQUIBASE_COMMAND_USERNAME: postgres
+      LIQUIBASE_COMMAND_PASSWORD: ci_password          # real environments: ${{ secrets.DB_PASSWORD }}
+      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog/db.changelog-master.yaml
+      LIQUIBASE_COMMAND_CONTEXT_FILTER: test           # never deploy without a context filter
+      LIQUIBASE_SHOW_BANNER: "false"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install Liquibase 5.0.4
+        run: |
+          curl -sSL https://github.com/liquibase/liquibase/releases/download/v5.0.4/liquibase-5.0.4.tar.gz -o lb.tgz
+          mkdir -p "$HOME/liquibase" && tar -xzf lb.tgz -C "$HOME/liquibase"
+          echo "$HOME/liquibase" >> "$GITHUB_PATH"
+
+      - name: Validate changelog syntax and checksums
+        run: liquibase validate
+
+      - name: Save the SQL that would run (for reviewers)
+        run: liquibase update-sql > update-preview.sql
+
+      - name: Deploy, roll back, redeploy (catches broken rollbacks)
+        run: liquibase update-testing-rollback
+
+      - name: Tag the result
+        run: liquibase tag "ci-${{ github.run_number }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: update-preview
+          path: update-preview.sql

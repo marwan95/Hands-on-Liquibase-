@@ -1,0 +1,129 @@
+# Hands-on Liquibase lab
+#   docker compose up -d                      -> PostgreSQL + Oracle
+#   docker compose --profile tools up -d      -> + CloudBeaver web UI (http://localhost:8978)
+#   docker compose run --rm liquibase <cmd>   -> Liquibase CLI against PostgreSQL (no local install needed)
+#   docker compose run --rm liquibase-oracle <cmd>
+#   docker compose run --rm grader            -> grade your hands-on work + quiz answers
+#   docker compose down        (keep data)    |   docker compose down -v   (DELETE all data, start over)
+
+name: hands-on-liquibase
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: hol-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lab
+    ports:
+      - "${PG_PORT:-5433}:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lab"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    container_name: hol-oracle
+    environment:
+      ORACLE_PASSWORD: oracle          # SYS / SYSTEM password
+      APP_USER: lb_lab                 # lab user, created in FREEPDB1
+      APP_USER_PASSWORD: lb_lab
+    ports:
+      - "${ORACLE_PORT:-1521}:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: hol-cloudbeaver
+    profiles: ["tools"]
+    ports:
+      - "${CLOUDBEAVER_PORT:-8978}:8978"
+    volumes:
+      - cloudbeaver-data:/opt/cloudbeaver/workspace
+
+  # Liquibase CLI (5.0.4 + PostgreSQL & Oracle drivers). Works inside ./lab
+  liquibase:
+    build: ./docker/liquibase
+    image: hands-on-liquibase/liquibase:5.0.4
+    profiles: ["cli"]
+    working_dir: /workspace
+    entrypoint: ["/liquibase/docker-entrypoint.sh", "--defaults-file=liquibase.properties"]
+    volumes:
+      - ./lab:/workspace
+    environment:
+      # overrides the localhost URL in lab/liquibase.properties (inside Docker the host is "postgres")
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/lab
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  liquibase-oracle:
+    image: hands-on-liquibase/liquibase:5.0.4
+    profiles: ["cli"]
+    working_dir: /workspace
+    volumes:
+      - ./lab:/workspace
+    entrypoint: ["/liquibase/docker-entrypoint.sh", "--defaults-file=liquibase-oracle.properties"]
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:oracle:thin:@oracle:1521/FREEPDB1
+    depends_on:
+      oracle:
+        condition: service_healthy
+
+  liquibase-legacy:
+    image: hands-on-liquibase/liquibase:5.0.4
+    profiles: ["cli"]
+    working_dir: /workspace
+    volumes:
+      - ./lab:/workspace
+    entrypoint: ["/liquibase/docker-entrypoint.sh", "--defaults-file=legacy.properties"]
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/legacy_dwh
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  liquibase-legacy-ci:
+    image: hands-on-liquibase/liquibase:5.0.4
+    profiles: ["cli"]
+    working_dir: /workspace
+    volumes:
+      - ./lab:/workspace
+    entrypoint: ["/liquibase/docker-entrypoint.sh", "--defaults-file=legacy-ci.properties"]
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/legacy_dwh_ci
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  grader:
+    build: ./docker/grader
+    image: hands-on-liquibase/grader:1.0
+    profiles: ["cli"]
+    volumes:
+      - .:/repo
+    environment:
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      ORACLE_DSN: oracle:1521/FREEPDB1
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pg-data:
+  oracle-data:
+  cloudbeaver-data:

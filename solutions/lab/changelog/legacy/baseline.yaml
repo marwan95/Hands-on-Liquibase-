@@ -1,0 +1,145 @@
+databaseChangeLog:
+- changeSet:
+    id: 1792247078042-1
+    author: USER (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: dim_customer_pkey
+            name: customer_key
+            startWith: 3
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: customer_name
+            type: VARCHAR(100)
+        - column:
+            name: city
+            type: VARCHAR(50)
+        - column:
+            defaultValue: RETAIL
+            name: segment
+            type: VARCHAR(20)
+        tableName: dim_customer
+- changeSet:
+    id: 1792247078042-2
+    author: USER (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: fact_sales_pkey
+            name: sale_id
+            startWith: 3
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: customer_key
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: date_key
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: quantity
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: net_amount
+            type: numeric(14, 2)
+        tableName: fact_sales
+- changeSet:
+    id: 1792247078042-3
+    author: USER (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: dim_date_pkey
+            name: date_key
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: full_date
+            type: date
+        - column:
+            name: month_name
+            type: VARCHAR(10)
+        - column:
+            name: year_num
+            type: INTEGER
+        tableName: dim_date
+- changeSet:
+    id: 1792247078042-4
+    author: USER (generated)
+    changes:
+    - createView:
+        fullDefinition: false
+        selectQuery: |-
+          SELECT c.city,
+              sum(f.net_amount) AS total_sales
+             FROM (fact_sales f
+               JOIN dim_customer c ON ((c.customer_key = f.customer_key)))
+            GROUP BY c.city;
+        viewName: v_sales_by_city
+- changeSet:
+    id: 1792247078042-5
+    author: USER (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: date_key
+        indexName: ix_fact_sales_date
+        tableName: fact_sales
+        using: btree
+- changeSet:
+    id: 1792247078042-6
+    author: USER (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: customer_key
+        baseTableName: fact_sales
+        constraintName: fact_sales_customer_key_fkey
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: customer_key
+        referencedTableName: dim_customer
+        validate: true
+- changeSet:
+    id: 1792247078042-7
+    author: USER (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: date_key
+        baseTableName: fact_sales
+        constraintName: fact_sales_date_key_fkey
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: date_key
+        referencedTableName: dim_date
+        validate: true
+

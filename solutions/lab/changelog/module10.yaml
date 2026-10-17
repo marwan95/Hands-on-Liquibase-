@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: m10-1
+      author: student
+      changes:
+        - createTable:
+            tableName: country_codes
+            columns:
+              - column: { name: country_code, type: CHAR(2), constraints: { primaryKey: true } }
+              - column: { name: country_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: region, type: VARCHAR(20) }
+
+  # reference data as a CSV in git: upsert, re-run whenever the CSV changes
+  - changeSet:
+      id: m10-2
+      author: student
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            tableName: country_codes
+            file: data/country_codes.csv
+            relativeToChangelogFile: true
+            primaryKey: country_code
+      rollback: []
+
+  # CONCURRENTLY refuses to run inside a transaction
+  - changeSet:
+      id: m10-3
+      author: student
+      runInTransaction: false
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: CREATE INDEX CONCURRENTLY ix_country_region ON country_codes(region)
+      rollback:
+        - sql:
+            sql: DROP INDEX CONCURRENTLY ix_country_region

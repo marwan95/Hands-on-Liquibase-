@@ -1,0 +1,4 @@
+# Keep LF endings so scripts and SQL behave the same inside Linux containers
+* text=auto eol=lf
+*.png binary
+*.jar binary

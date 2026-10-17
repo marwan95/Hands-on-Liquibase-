@@ -1,0 +1,91 @@
+# Your quiz answers. Write A, B, C or D after each question, then run:  docker compose run --rm grader
+learner: ""      # your name
+
+module-00:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-01:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-02:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-03:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-04:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-05:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-06:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-07:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-08:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-09:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-10:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+
+module-exam:
+  q1:
+  q2:
+  q3:
+  q4:
+  q5:
+  q6:
+  q7:
+  q8:
+  q9:
+  q10:

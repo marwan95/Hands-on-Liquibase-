@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include: { file: baseline.yaml, relativeToChangelogFile: true }
+  - include: { file: drift-001.yaml, relativeToChangelogFile: true }

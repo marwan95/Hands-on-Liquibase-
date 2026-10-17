@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - include: { file: module01.sql, relativeToChangelogFile: true }
+  - include: { file: module02.yaml, relativeToChangelogFile: true }
+  - include: { file: module02.xml, relativeToChangelogFile: true }
+  - include: { file: module03.yaml, relativeToChangelogFile: true }
+  - include: { file: module03_routines.sql, relativeToChangelogFile: true }
+  - include: { file: module04.yaml, relativeToChangelogFile: true }
+  - include: { file: module05.sql, relativeToChangelogFile: true }
+  - include: { file: module06.sql, relativeToChangelogFile: true }
+  - include: { file: module07.sql, relativeToChangelogFile: true }
+  - include: { file: module10.yaml, relativeToChangelogFile: true }
+  - include: { file: exam.sql, relativeToChangelogFile: true }
